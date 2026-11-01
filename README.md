@@ -1,55 +1,53 @@
 # Détecteur de formes géométriques dans des images — Projet libre MP2I
 
-## Identification du binôme et du projet
+## Qui et quoi
 
-- **Étudiant(e) 1 — Prénom NOM :** Romain CHEN
-- **Étudiant(e) 2 — Prénom NOM :** Mohammed MOUSSAOUI
-- **Projet choisi :** Projet libre validé par l'enseignante — *Détecteur de formes géométriques dans des images BMP, en C, sans bibliothèque externe*
-- **Lien du dépôt GitHub :** https://github.com/Answy-L/MP2I-Informatique
-- **Date du dernier commit avant rendu :** ⚠️ à compléter au rendu final (8 novembre 2026)
+- **Étudiant(e) 1 :** Romain CHEN
+- **Étudiant(e) 2 :** Mohammed MOUSSAOUI
+- **Projet :** projet libre validé par l'enseignante, un détecteur de formes géométriques dans des images BMP, en C, sans bibliothèque externe
+- **Dépôt GitHub :** https://github.com/Answy-L/MP2I-Informatique
+- **Dernier commit avant rendu :** ⚠️ à compléter au rendu final (8 novembre 2026)
 
-⚠️ Important : obtenez la confirmation écrite de l'enseignante sur le sujet libre (mail ou message) et citez-la ici.
+⚠️ À ne pas oublier : récupérer la confirmation écrite de l'enseignante sur le sujet libre (mail ou message) et la citer ici.
 
 ---
 
 ## 1. Présentation
 
-Ce programme, écrit **en C, sans bibliothèque externe** (aucun OpenCV), reconnaît des **formes géométriques** (cercle, triangle, rectangle, carré) présentes dans une image, et déclenche une **action** pour chaque forme reconnue.
+Le programme est écrit **en C, sans aucune bibliothèque externe** (pas d'OpenCV). Il repère des **formes géométriques** (cercle, triangle, rectangle, carré) dans une image et lance une **action** pour chaque forme reconnue.
 
-L'image est un fichier **BMP 24 bits** — le seul format d'image dont la structure est assez simple pour être décodée « à la main » en C : un en-tête de 54 octets suivi des pixels bruts. Les images analysées peuvent être créées avec Paint, ou extraites d'une webcam et converties en BMP.
-
-Fonctionnalités :
+On travaille sur des fichiers **BMP 24 bits**. C'est le seul format d'image assez simple pour être décodé à la main en C : un en-tête de 54 octets, puis les pixels bruts. Les images peuvent venir de Paint, ou d'une webcam puis être converties en BMP.
 
 | Fonctionnalité | Détail |
 |---|---|
-| Charger une image BMP | Décodage de l'en-tête + pixels, gestion du padding des lignes |
-| Binarisation | Conversion en niveaux de gris puis noir/blanc par seuil (fixe ou automatique) |
-| Détection des formes | Étiquetage par composantes connexes (parcours en largeur avec une pile dynamique) |
+| Charger une image BMP | Lecture de l'en-tête et des pixels, avec gestion du padding des lignes |
+| Binarisation | Passage en niveaux de gris, puis en noir et blanc grâce à un seuil (fixe ou automatique) |
+| Détection des formes | Étiquetage par composantes connexes, parcours en largeur avec une pile dynamique |
 | Caractéristiques | Aire, périmètre, boîte englobante, remplissage, circularité |
-| Classification | Cercle / triangle / rectangle / carré / forme inconnue |
-| Actions | Rapport détaillé + image BMP « annotée » : chaque forme est colorée selon sa classe |
-| Interface CLI | Menu : charger, régler le seuil, analyser, exporter, aide, quitter |
+| Classification | Cercle, triangle, rectangle, carré ou forme inconnue |
+| Actions | Rapport détaillé et image BMP « annotée » où chaque forme est colorée selon sa classe |
+| Interface en ligne de commande | Menu : charger, régler le seuil, analyser, exporter, aide, quitter |
 
 ---
 
 ## 2. Analyse
 
-### Besoins
+### Ce qu'il faut faire
 
-Partir d'un fichier binaire quelconque (le BMP) et aboutir à une **liste de formes identifiées**, sans bibliothèque d'image : toutes les étapes intermédiaires (décodage, seuillage, parcours) doivent donc être écrites à la main. Chaque forme reconnue doit déclencher une action — au minimum un rapport et une image annotée.
+On part d'un fichier binaire brut (le BMP) et on veut arriver à une **liste de formes identifiées**. Sans bibliothèque d'image, toutes les étapes intermédiaires (décodage, seuillage, parcours) sont à écrire nous-mêmes. Chaque forme reconnue doit déclencher une action, au minimum un rapport et une image annotée.
 
 ### Contraintes
 
-- **Aucune bibliothèque externe** : le décodage BMP, la binarisation et le parcours doivent être écrits en C standard.
-- La taille de l'image est **inconnue à l'avance** : toutes les structures (pixels, étiquettes, pile de parcours, liste de formes) sont allouées dynamiquement.
-- Une image peut contenir **un nombre quelconque de formes** de tailles variées.
-- Le parcours de formes doit être **itératif** (pile dynamique) : un parcours récursif par flood fill fait exploser la pile d'appels sur les grandes images — choix à justifier en conception.
-- Le programme doit rejeter proprement un fichier non-BMP, tronqué, ou une image aux dimensions incohérentes.
-- Toute la mémoire allouée doit être libérée (vérification `valgrind` exigée dans les tests).
+- **Aucune bibliothèque externe** : décodage BMP, binarisation et parcours se font en C standard.
+- On ne connaît pas la taille de l'image à l'avance, donc tout (pixels, étiquettes, pile de parcours, liste de formes) est alloué dynamiquement.
+- Une image peut contenir autant de formes qu'on veut, de tailles très différentes.
+- Le parcours doit être **itératif** (pile dynamique). Un flood fill récursif fait exploser la pile d'appels sur les grandes images, et ce choix sera à justifier dans la conception.
+- Le programme doit refuser proprement un fichier qui n'est pas un BMP, un fichier tronqué ou une image aux dimensions incohérentes.
+- Toute la mémoire allouée doit être libérée, et les tests doivent le prouver avec `valgrind`.
 
 ### Idée directrice : le pipeline
 
-Chaque étape transforme les données de l'étape précédente, et chacune se teste séparément :
+Chaque étape reprend le résultat de la précédente, et on peut les tester une par une :
 
 ```mermaid
 flowchart TD
@@ -76,7 +74,7 @@ flowchart TD
 | `bmp.h` / `bmp.c` | Structure `Image`, lecture et écriture BMP 24 bits, conversions gris ↔ RGB, libération |
 | `analyse.h` / `analyse.c` | Binarisation, étiquetage par composantes connexes (pile dynamique), caractéristiques |
 | `formes.h` / `formes.c` | Structure `Forme`, classification par heuristiques, liste de formes |
-| `actions.h` / `actions.c` | Rapport console + génération du BMP annoté (une couleur par classe) |
+| `actions.h` / `actions.c` | Rapport dans la console et génération du BMP annoté (une couleur par classe) |
 | `main.c` | Menu, enchaînement des étapes, libération finale |
 | `Makefile` | `make`, `make clean` |
 
@@ -100,7 +98,7 @@ typedef struct {
 } Forme;
 ```
 
-### Décodage BMP (le point délicat n°1)
+### Décodage BMP (premier point délicat)
 
 ```text
 lire_bmp(nomFichier) :
@@ -117,7 +115,7 @@ lire_bmp(nomFichier) :
     fermer le fichier
 ```
 
-### Composantes connexes (le point délicat n°2)
+### Composantes connexes (second point délicat)
 
 ```text
 etiqueter(image) :
@@ -133,14 +131,14 @@ etiqueter(image) :
     # pendant le parcours : cumuler aire, périmètre, boîte englobante
 ```
 
-⚠️ Choix à justifier dans le bilan : parcours **itératif avec pile dynamique** (`malloc`/`realloc`) plutôt que récursif, car un flood fill récursif provoque un débordement de pile système sur les grandes formes (limite typique : ≈ 1 Mo de pile d'appels).
+⚠️ Choix à justifier dans le bilan : parcours **itératif avec pile dynamique** (`malloc`/`realloc`) plutôt que récursif, parce qu'un flood fill récursif fait déborder la pile système sur les grandes formes (la limite tourne autour de 1 Mo de pile d'appels).
 
 ### Classification (heuristiques)
 
 | Mesure | Cercle | Carré | Rectangle | Triangle |
 |---|---|---|---|---|
-| circularité 4πA/P² | ≈ 1 | ≈ 0,79 | ≈ 0,79 | ≈ 0,6 |
-| remplissage A / (L×H) | ≈ 0,785 | ≈ 1 | ≈ 1 | ≈ 0,5 |
+| circularité $4\pi A/P^2$ | ≈ 1 | ≈ 0,79 | ≈ 0,79 | ≈ 0,6 |
+| remplissage $A/(L \times H)$ | ≈ 0,785 | ≈ 1 | ≈ 1 | ≈ 0,5 |
 
 ```text
 classer(f) :
@@ -152,36 +150,36 @@ classer(f) :
     sinon                                     → INCONNUE
 ```
 
-⚠️ Ces seuils sont des **hypothèses de départ** : ils devront être affinés sur les images de test — c'est justement le genre de décision à raconter dans la section « Démarche ».
+⚠️ Ces seuils ne sont que des **hypothèses de départ**. Il faudra les ajuster sur les images de test, et c'est exactement le genre de choix à raconter dans la section « Démarche ».
 
 ### BMP annoté (l'action principale)
 
-Copie de l'image d'origine où les pixels de chaque forme prennent une couleur par classe (cercle → rouge, triangle → vert, rectangle → bleu, carré → jaune). L'écriture BMP réutilise `bmp.c` : en-tête identique + pixels (attention au padding à l'écriture aussi).
+C'est une copie de l'image d'origine où les pixels de chaque forme prennent la couleur de leur classe : cercle en rouge, triangle en vert, rectangle en bleu, carré en jaune. L'écriture réutilise `bmp.c` : même en-tête, puis les pixels. Attention au padding à l'écriture aussi.
 
 ---
 
 ## 4. Démarche de réalisation
 
-⚠️ À rédiger au fil du projet, en citant les commits. Plan de jalons proposé :
+⚠️ À rédiger au fur et à mesure du projet, en citant les commits. Jalons prévus :
 
-1. **Jalon 1** : `bmp.c` — lecture, affichage des dimensions, libération ; test sur une image Paint. Vérification `valgrind` immédiate.
-2. **Jalon 2** : binarisation + premier affichage du comptage de pixels noirs (testable sans détection).
-3. **Jalon 3** : étiquetage par composantes connexes avec la pile dynamique ; test sur une image à 3 formes → 3 étiquettes.
-4. **Jalon 4** : caractéristiques + classification ; premiers seuils ajustés sur les images de test.
-5. **Jalon 5** : BMP annoté + rapport.
-6. **Jalon 6** : erreurs (fichier non-BMP, tronqué), cas limites, `valgrind` complet, README final.
+1. **Jalon 1** : `bmp.c` avec lecture, affichage des dimensions et libération. Test sur une image Paint, et `valgrind` tout de suite.
+2. **Jalon 2** : binarisation, puis affichage du nombre de pixels noirs (testable sans détection).
+3. **Jalon 3** : étiquetage par composantes connexes avec la pile dynamique. Test sur une image à 3 formes, on doit trouver 3 étiquettes.
+4. **Jalon 4** : caractéristiques et classification, premiers réglages des seuils sur les images de test.
+5. **Jalon 5** : BMP annoté et rapport.
+6. **Jalon 6** : gestion des erreurs (fichier non-BMP, tronqué), cas limites, `valgrind` complet, README final.
 
-Problèmes rencontrés et solutions adoptées :
+Problèmes rencontrés et solutions :
 
 | Problème | Solution | Commit(s) |
-|---|---|---|---|
+|---|---|---|
 | ⚠️ À COMPLÉTER (ex : « image affichée en miroir » → « les lignes BMP sont stockées de bas en haut ») | ⚠️ | ⚠️ |
 
 ---
 
 ## 5. Compilation et utilisation
 
-**Prérequis :** `gcc` ou `clang`, `make`, `valgrind` (recommandé). Aucune bibliothèque externe.
+**Prérequis :** `gcc` ou `clang`, `make`, et `valgrind` (recommandé). Aucune bibliothèque externe.
 
 ```bash
 make                 # construit l'exécutable
@@ -207,9 +205,9 @@ Image annotée écrite : sortie.bmp
 > quitter
 ```
 
-⚠️ À COMPLÉTER : faire correspondre ces exemples aux sorties réelles.
+⚠️ À COMPLÉTER : remplacer ces exemples par les vraies sorties du programme.
 
-Vérification mémoire avant rendu :
+Vérification mémoire avant le rendu :
 
 ```bash
 valgrind --leak-check=full ./formes
@@ -222,7 +220,7 @@ valgrind --leak-check=full ./formes
 
 ### Images de test (dossier `tests/`)
 
-⚠️ À COMPLÉTER : fournir 4 à 6 images BMP créées avec Paint (formes sur fond blanc) : image simple, image multi-formes, formes de tailles très différentes, forme collée au bord, image vide (tout blanc), image bruitée.
+⚠️ À COMPLÉTER : prévoir 4 à 6 images BMP faites avec Paint (formes sur fond blanc) : une image simple, une multi-formes, des formes de tailles très différentes, une forme collée au bord, une image vide (tout blanc) et une image bruitée.
 
 ### Jeux d'essais
 
@@ -230,13 +228,13 @@ valgrind --leak-check=full ./formes
 |---|---|---|---|---|
 | 1 | Normal | image avec 1 cercle | 1 forme, classe CERCLE | ⚠️ |
 | 2 | Normal | image avec cercle + carré + triangle | 3 formes bien classées | ⚠️ |
-| 3 | Normal | carré vs rectangle proches | classes distinctes | ⚠️ |
+| 3 | Normal | carré et rectangle proches | classes distinctes | ⚠️ |
 | 4 | Cas limite | forme collée au bord de l'image | détectée quand même | ⚠️ |
-| 5 | Cas limite | forme de 1-2 pixels (grain de bruit) | ignorée si sous un seuil d'aire minimale (⚠️ préciser votre choix) | ⚠️ |
+| 5 | Cas limite | forme de 1-2 pixels (grain de bruit) | ignorée sous une aire minimale (⚠️ préciser votre choix) | ⚠️ |
 | 6 | Cas limite | image tout blanc | 0 forme, pas de crash | ⚠️ |
-| 7 | Cas limite | image tout noir | 1 seule grande forme (ou erreur propre si aire > image) | ⚠️ |
+| 7 | Cas limite | image tout noir | 1 seule grande forme (ou erreur propre si l'aire dépasse l'image) | ⚠️ |
 | 8 | Erreur | fichier texte renommé `.bmp` | « signature invalide », pas de crash | ⚠️ |
-| 9 | Erreur | fichier BMP tronqué (coupé) | erreur de lecture, mémoire libérée | ⚠️ |
+| 9 | Erreur | fichier BMP tronqué | erreur de lecture, mémoire libérée | ⚠️ |
 | 10 | Erreur | nom de fichier inexistant | message d'erreur, pas de crash | ⚠️ |
 | 11 | Mémoire | session complète sous `valgrind` | 0 octet perdu | ⚠️ |
 | 12 | Robustesse | même image analysée 2 fois de suite | mêmes résultats, pas de fuite | ⚠️ |
@@ -247,15 +245,15 @@ valgrind --leak-check=full ./formes
 
 ### Limites actuelles
 
-⚠️ À COMPLÉTER (exemples probables : uniquement BMP 24 bits ; classification heuristique qui échoue sur formes concaves ; sensibilité au bruit de l'image réelle ; les formes qui se touchent ne forment qu'une seule composante).
+⚠️ À COMPLÉTER (pistes probables : uniquement du BMP 24 bits ; la classification par heuristiques rate les formes concaves ; sensibilité au bruit sur les vraies images ; deux formes qui se touchent ne font qu'une seule composante).
 
 ### Améliorations possibles
 
-⚠️ À COMPLÉTER (exemples : seuillage automatique d'Otsu ; détection de contours pour le périmètre ; reconnaissance de formes plus complexes ; lecture d'autres formats ; images issues directement de la webcam).
+⚠️ À COMPLÉTER (pistes : seuillage automatique d'Otsu ; détection de contours pour calculer le périmètre ; formes plus complexes ; autres formats d'image ; images prises directement avec la webcam).
 
 ### Répartition effective du travail
 
-⚠️ Obligatoire : remplir avec la réalité des commits, pas la prévision.
+⚠️ Obligatoire : remplir avec ce qui s'est réellement passé dans les commits, pas avec ce qui était prévu.
 
 | Tâche / fonctionnalité | Responsable principal (Prénom NOM) | Contribution de l'autre membre | Fichiers ou commits Git associés |
 |---|---|---|---|
@@ -270,10 +268,10 @@ valgrind --leak-check=full ./formes
 
 ### Bilans individuels
 
-**Romain CHEN — étudiant 1 :** ⚠️ à rédiger au moment du rendu : tâches réalisées, difficultés rencontrées, solutions apportées, apprentissages. (quelques lignes)
+**Romain CHEN — étudiant 1 :** ⚠️ à rédiger au moment du rendu : ce que vous avez fait, les difficultés, comment vous les avez réglées, ce que vous avez appris (quelques lignes).
 
-**Mohammed MOUSSAOUI — étudiant 2 :** ⚠️ à rédiger au moment du rendu : tâches réalisées, difficultés rencontrées, solutions apportées, apprentissages. (quelques lignes)
+**Mohammed MOUSSAOUI — étudiant 2 :** ⚠️ à rédiger au moment du rendu : ce que vous avez fait, les difficultés, comment vous les avez réglées, ce que vous avez appris (quelques lignes).
 
 ---
 
-*Projet libre MP2I — Informatique, E. SABAHI — Rendu le 8 novembre 2026 au plus tard.*
+*Projet libre MP2I — Informatique, E. SABAHI — À rendre le 8 novembre 2026 au plus tard.*
