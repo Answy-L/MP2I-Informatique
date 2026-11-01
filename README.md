@@ -3,7 +3,7 @@
 ## Identification du binôme et du projet
 
 - **Étudiant(e) 1 — Prénom NOM :** Romain CHEN
-- **Étudiant(e) 2 — Prénom NOM :** Mohamed ⚠️ NOM à compléter
+- **Étudiant(e) 2 — Prénom NOM :** Mohammed MOUSSAOUI
 - **Projet choisi :** Projet libre validé par l'enseignante — *Détecteur de formes géométriques dans des images BMP, en C, sans bibliothèque externe*
 - **Lien du dépôt GitHub :** https://github.com/Answy-L/MP2I-Informatique
 - **Date du dernier commit avant rendu :** ⚠️ à compléter au rendu final (8 novembre 2026)
@@ -133,7 +133,7 @@ etiqueter(image) :
     # pendant le parcours : cumuler aire, périmètre, boîte englobante
 ```
 
-⚠️ Choix à justifier dans le bilan : parcours **itératif avec pile dynamique** (`malloc`/`realloc`) plutôt que récursif, car un flood fill récursif provoque un débordement de pile système sur les grandes formes (limite typique : `1 Mo de pile d'appels).
+⚠️ Choix à justifier dans le bilan : parcours **itératif avec pile dynamique** (`malloc`/`realloc`) plutôt que récursif, car un flood fill récursif provoque un débordement de pile système sur les grandes formes (limite typique : ≈ 1 Mo de pile d'appels).
 
 ### Classification (heuristiques)
 
@@ -174,7 +174,7 @@ Copie de l'image d'origine où les pixels de chaque forme prennent une couleur p
 Problèmes rencontrés et solutions adoptées :
 
 | Problème | Solution | Commit(s) |
-|---|---|---|
+|---|---|---|---|
 | ⚠️ À COMPLÉTER (ex : « image affichée en miroir » → « les lignes BMP sont stockées de bas en haut ») | ⚠️ | ⚠️ |
 
 ---
@@ -270,9 +270,9 @@ valgrind --leak-check=full ./formes
 
 ### Bilans individuels
 
-**⚠️ Prénom NOM — étudiant(e) 1 :** tâches réalisées, difficultés rencontrées, solutions apportées, apprentissages. (quelques lignes)
+**Romain CHEN — étudiant 1 :** ⚠️ à rédiger au moment du rendu : tâches réalisées, difficultés rencontrées, solutions apportées, apprentissages. (quelques lignes)
 
-**⚠️ Prénom NOM — étudiant(e) 2 :** tâches réalisées, difficultés rencontrées, solutions apportées, apprentissages. (quelques lignes)
+**Mohammed MOUSSAOUI — étudiant 2 :** ⚠️ à rédiger au moment du rendu : tâches réalisées, difficultés rencontrées, solutions apportées, apprentissages. (quelques lignes)
 
 ---
 
