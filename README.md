@@ -160,34 +160,82 @@ C'est une copie de l'image d'origine où les pixels de chaque forme prennent la 
 
 ## 4. Démarche de réalisation
 
-⚠️ À rédiger au fur et à mesure du projet, en citant les commits. Jalons prévus :
+### Journal de bord
 
-1. **Jalon 1** : `bmp.c` avec lecture, affichage des dimensions et libération. Test sur une image Paint, et `valgrind` tout de suite.
-2. **Jalon 2** : binarisation, puis affichage du nombre de pixels noirs (testable sans détection).
-3. **Jalon 3** : étiquetage par composantes connexes avec la pile dynamique. Test sur une image à 3 formes, on doit trouver 3 étiquettes.
-4. **Jalon 4** : caractéristiques et classification, premiers réglages des seuils sur les images de test.
-5. **Jalon 5** : BMP annoté et rapport.
-6. **Jalon 6** : gestion des erreurs (fichier non-BMP, tronqué), cas limites, `valgrind` complet, README final.
+**Séance 1 — 06/10/2026 : lancer le dépôt GitHub du binôme.**
+Création du dépôt et ajout des premiers fichiers via upload (commit `14dbdda`). C'était la première utilisation de Git à deux, ça a pris un peu de temps. Prochaine étape : mettre en place le README et le `.gitignore`.
 
-Problèmes rencontrés et solutions :
+**Séance 2 — 13/10/2026 : organiser le dépôt.**
+Ajout du README initial et du `.gitignore` (commit `e24dfc1`, poussé le 12/10) en suivant le guide GitHub, VS Code et WSL. L'enseignante a validé le sujet à l'oral : détecteur de formes dans les images BMP en C pur (la confirmation écrite n'est pas encore obtenue). Prochaine étape : étudier le format BMP en détail.
 
-| Problème | Solution | Commit(s) |
+**Séance 3 — 20/10/2026 : analyser le format BMP.**
+Étude du format BMP 24 bits sur papier et avec de la documentation : en-tête de 54 octets, nombres stockés en petit-boutiste, lignes arrondies à un multiple de 4 octets, pixels dans l'ordre bleu, vert, rouge, lignes stockées de bas en haut. On a eu du mal au début avec le petit-boutisme et le padding. Prochaine étape : concevoir le programme.
+
+**Séance 4 — 27/10/2026 : concevoir le programme.**
+Sur papier : structure `Image` (largeur, hauteur, tableau de niveaux de gris), découpage du projet en jalons (lecture BMP, puis binarisation et comptage, puis détection de formes) et liste des 12 cas de tests. Le brouillon du squelette de `bmp.c` a aussi été commencé. Le plus dur a été de décider comment gérer les erreurs de `fopen` et `malloc`. Prochaine étape : rédiger le README complet.
+
+**Séance 5 — 01/11/2026 : rédiger le README du projet.**
+Rédaction du README complet à partir des notes : identification, analyse, conception et plan de tests (commit `3975cd1`). Puis l'identification du binôme a été complétée (`df0d392`) et le texte a été entièrement reformulé et relu par les deux élèves (`cb92181`). On a veillé à ce que le texte soit vraiment de nous. Prochaine étape : poser le squelette du jalon 1.
+
+**Séance 6 — 02/11/2026 : jalon 1, poser le squelette du code.**
+Commit `b52bdcf` : `bmp.h` complet, `bmp.c` en squelette guidé avec `liberer_image` déjà donnée, `main.c` qui teste le chargement (attendu : 64 x 48 px et 496 pixels noirs), `Makefile` avec gcc, et `tests/generer_image.py` qui génère `formes01.bmp`. Problème : gcc n'est pas disponible sur l'ordinateur de travail, impossible de compiler tout de suite. Prochaine étape : écrire `lire_bmp`.
+
+**Séance 7 — 03/11/2026 : jalon 1, écrire `lire_bmp`.**
+Un membre du binôme a écrit la fonction, l'autre l'a relue. Elle a été vérifiée sur 3 cas : `formes01.bmp` doit donner 64 x 48 et 496 noirs ; une image de 65 x 20 avec padding place bien le carré au bon endroit ; et les fichiers invalides (mauvaise signature, fichier tronqué, fichier inexistant) renvoient `NULL` proprement. Reste à compiler en local. Deux points à surveiller, traités : `entete[21] << 24` peut être un comportement indéfini sur un `int` signé (corrigé : les décalages se font sur `unsigned` avant d'être convertis en `int`), et la hauteur négative n'est pas gérée (documentée comme limite).
+
+### Jalons prévus et avancement
+
+1. **Jalon 1** : `bmp.c` avec lecture, affichage des dimensions et libération — **code écrit et relu (séance 7), compilation locale en cours**.
+2. **Jalon 2** : binarisation, puis affichage du nombre de pixels noirs (testable sans détection) — à faire.
+3. **Jalon 3** : étiquetage par composantes connexes avec la pile dynamique. Test sur une image à 3 formes, on doit trouver 3 étiquettes — à faire.
+4. **Jalon 4** : caractéristiques et classification, premiers réglages des seuils sur les images de test — à faire.
+5. **Jalon 5** : BMP annoté et rapport — à faire.
+6. **Jalon 6** : gestion des erreurs (fichier non-BMP, tronqué), cas limites, `valgrind` complet, README final — à faire.
+
+### Problèmes rencontrés et solutions
+
+| Problème | Solution | Séance(s) / commit(s) |
 |---|---|---|
-| ⚠️ À COMPLÉTER (ex : « image affichée en miroir » → « les lignes BMP sont stockées de bas en haut ») | ⚠️ | ⚠️ |
+| Nombres de l'en-tête incompréhensibles au début | Étude du petit-boutisme : octet de poids faible en premier ; reconstruction des entiers octet par octet | Séance 3, commit du jalon 1 |
+| Pixels décalés sur une image de largeur impaire | Chaque ligne BMP est arrondie à un multiple de 4 octets : on saute le padding après chaque ligne | Séance 3, commit du jalon 1 |
+| `entete[21] << 24` : comportement indéfini possible sur un `int` signé | Les décalages se font sur `unsigned`, puis conversion en `int` | Séance 7, commit du jalon 1 |
+| BMP à hauteur négative (lignes déjà de haut en bas) non géré | Choix documenté comme limite : les dimensions invalides sont refusées proprement | Séance 7 |
+| gcc indisponible sur l'ordinateur de travail | Code écrit, relu et vérifié sur papier d'abord ; compilation locale prévue avant la suite | Séance 6 |
+
+### Reste à faire avant le rendu du 8 novembre
+
+- Compiler le jalon 1 en local (`python tests/generer_image.py`, `make`, `./formes` : doit afficher 64 x 48 et 496).
+- Commiter `bmp.c` complet.
+- Jalon 2 : binarisation et comptage des pixels noirs.
+- Détection des formes : carrés, disques, triangles.
+- Lancer la campagne de tests complète (12 cas prévus au README).
+- Obtenir la confirmation écrite de l'enseignante et l'ajouter au README.
+- Remplir les points en attente du README : répartition du travail, résultats réels, bilans individuels, date du dernier commit.
+- Dernier commit avant le 8 novembre à 23h59.
 
 ---
 
 ## 5. Compilation et utilisation
 
-**Prérequis :** `gcc` ou `clang`, `make`, et `valgrind` (recommandé). Aucune bibliothèque externe.
+**Prérequis :** `gcc` ou `clang`, `make`, `python3` (pour générer les images de test), et `valgrind` (recommandé). Aucune bibliothèque externe.
+
+**État actuel du projet (jalon 1) :**
 
 ```bash
-make                 # construit l'exécutable
-./formes             # lance le programme (⚠️ adapter au nom choisi)
-make clean           # nettoie les .o
+python tests/generer_image.py   # crée tests/formes01.bmp (fond blanc, carré 20x20, rectangle 12x8)
+make                            # construit l'exécutable "formes"
+./formes                        # teste le chargement
+make clean                      # nettoie les .o
 ```
 
-Exemple de session attendue :
+Résultat attendu (jalon 1) :
+
+```text
+Image chargee : 64 x 48 px
+Pixels noirs (<128) : 496
+```
+
+**Interface visée pour les jalons suivants** (menu : charger, régler le seuil, analyser, exporter, aide, quitter). Exemple de session visée :
 
 ```text
 $ ./formes
@@ -205,7 +253,7 @@ Image annotée écrite : sortie.bmp
 > quitter
 ```
 
-⚠️ À COMPLÉTER : remplacer ces exemples par les vraies sorties du programme.
+⚠️ À COMPLÉTER au fil des jalons : remplacer ces exemples par les vraies sorties du programme.
 
 Vérification mémoire avant le rendu :
 
@@ -245,7 +293,9 @@ valgrind --leak-check=full ./formes
 
 ### Limites actuelles
 
-⚠️ À COMPLÉTER (pistes probables : uniquement du BMP 24 bits ; la classification par heuristiques rate les formes concaves ; sensibilité au bruit sur les vraies images ; deux formes qui se touchent ne font qu'une seule composante).
+- Seuls les fichiers **BMP 24 bits non compressés** sont acceptés ; tout le reste (mauvaise signature, en-tête incomplet, dimensions invalides) est refusé proprement, sans fuite mémoire.
+- Les BMP à **hauteur négative** (lignes stockées de haut en bas, produits par certains logiciels de dessin) sont refusés : c'est un choix documenté et assumé.
+- ⚠️ À compléter au fil des jalons suivants (pistes probables : la classification par heuristiques rate les formes concaves ; sensibilité au bruit sur les vraies images ; deux formes qui se touchent ne font qu'une seule composante).
 
 ### Améliorations possibles
 
