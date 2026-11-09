@@ -1,6 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Arduino
+*.hex
+
+# Regles heritees du premier projet explore (C)
 *.o
 *.out
 *.exe
 a.out
 programme
-test
+
+# Editeurs et systeme
+.vscode/
+.DS_Store
