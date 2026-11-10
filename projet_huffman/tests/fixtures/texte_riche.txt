@@ -1,0 +1,6 @@
+Bonjour E. Sabahi !
+
+Voici un texte, avec : de la ponctuation ; des espaces,
+	des tabulations, des accents (é à ç ù) et des retours a la ligne.
+
+"Guillemets", apostrophes et tirets -- tout doit survivre.
