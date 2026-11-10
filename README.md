@@ -1,5 +1,12 @@
 # Robot commandé par les gestes de la main — Projet MP2I
 
+> **⚠️ À lire en premier (ajouté le 10/11/2026) : ce dépôt contient deux projets distincts.**
+>
+> 1. Le **projet robot** (Python + Arduino) décrit par ce README ci-dessous, présenté comme validé par l'enseignante le 03/11/2026 (voir « Qui et quoi » et le journal de bord).
+> 2. Le dossier **`projet_huffman/`** (ajouté le 10/11/2026) : compresseur de fichier en C avec l'algorithme de Huffman, réalisé pour le « Projet 2 » du cahier des charges d'informatique.
+>
+> Le binôme doit **confirmer avec Mme SABAHI quel sujet doit être rendu** : le README historique ci-dessous affirme que le passage au projet robot a été validé, alors que le dossier `projet_huffman/` correspond à un autre sujet du cahier des charges. Aucune des deux affirmations ne doit être considérée comme une validation de l'autre. Voir la section 8 en fin de README pour le projet Huffman.
+
 ## Qui et quoi
 
 - **Étudiant 1 :** Romain CHEN
@@ -343,6 +350,28 @@ py -3.12 tests/test_gestes.py
 **Romain CHEN — étudiant 1 :** ⚠️ à rédiger au moment du rendu : ce que vous avez fait, les difficultés, comment vous les avez réglées, ce que vous avez appris (quelques lignes).
 
 **Mohammed MOUSSAOUI — étudiant 2 :** ⚠️ à rédiger au moment du rendu : ce que vous avez fait, les difficultés, comment vous les avez réglées, ce que vous avez appris (quelques lignes).
+
+---
+
+## 8. Autre livrable présent dans ce dépôt : compresseur Huffman en C (dossier `projet_huffman/`)
+
+Ajouté le 10/11/2026, le dossier [`projet_huffman/`](projet_huffman/) contient un **projet C complet** répondant au « Projet 2 — Compresseur de fichier avec l'algorithme de Huffman » du cahier des charges d'informatique :
+
+- compresseur/décompresseur sans perte en C11, format binaire autonome versionné « HUF1 » ;
+- file de priorité (tas min), arbre de Huffman, codes binaires, lecture par blocs ;
+- suite de 25 tests automatisés (aller-retours vérifiés octet par octet, fichiers corrompus, erreurs d'utilisation), tous passés le 10/11/2026, y compris avec UBSan.
+
+Pour le compiler et le tester :
+
+```bash
+cd projet_huffman
+make
+make test
+```
+
+Sa documentation complète (analyse, conception, format, tests, bilan à compléter) est dans [`projet_huffman/README.md`](projet_huffman/README.md), avec un guide pour l'oral dans [`projet_huffman/docs/explication_orale.md`](projet_huffman/docs/explication_orale.md).
+
+**Important :** ce dossier a été ajouté sans modifier ni supprimer aucun fichier du projet robot décrit ci-dessus, et sans toucher à l'historique Git du dépôt. Le projet robot reste complet et inchangé à son emplacement actuel. Le binôme doit confirmer avec l'enseignante le sujet à rendre (robot **ou** Huffman, ou les deux), la date limite du 8/11/2026 étant dépassée dans tous les cas.
 
 ---
 
