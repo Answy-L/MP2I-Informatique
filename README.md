@@ -89,9 +89,10 @@ Un pipeline simple à tester à chaque étape : la webcam seule (mode démo) per
 | Fichier | Rôle |
 |---|---|
 | `hand_tracker_angle.py` | capture, détection des mains, mesure d'angles, reconnaissance des dix doigts, filtrage (classe `FingerSmoother`), panneau de LED virtuelles, liaison série, fermeture propre |
+| `led_arduino/led_arduino.ino` | sketch Arduino : réception des trames sur le port série, pilotage des dix LED, extinction automatique si la liaison est perdue |
+| `led_arduino/diagram.json` | schéma du montage des dix LED (format Wokwi, simulation possible sans matériel) |
 | `.vscode/settings.json` | configuration VS Code : environnement Python système |
 | `.vscode/launch.json` | configuration VS Code : lancement et débogage |
-| `led_arduino/` (à venir) | sketch Arduino qui reçoit les trames et allume les dix LED |
 
 ### Reconnaissance par angles
 
@@ -124,7 +125,27 @@ Format d'une trame : `R1=1,R2=0,...,L5=0` suivi d'un saut de ligne, à 9600 baud
 - Python envoie la trame toutes les 0,10 s uniquement si au moins un doigt est levé ;
 - poing fermé, main absente ou tous les doigts baissés : aucune trame de doigt ;
 - à la fermeture du programme, une trame de remise à zéro est envoyée avant de couper le port ;
-- à l'ouverture du port, le programme attend 2 secondes car l'Arduino redémarre souvent à ce moment.
+- à l'ouverture du port, le programme attend 2 secondes car l'Arduino redémarre souvent à ce moment ;
+- côté Arduino, une seconde sans trame éteint toutes les LED : les LED ne restent jamais allumées si la main se ferme ou si la liaison est coupée.
+
+### Câblage des dix LED
+
+Chaque broche Arduino pilote une LED à travers une résistance de 220 Ω ; l'anode (patte longue) côté résistance, la cathode rejoint la masse (GND).
+
+| Doigt | LED | Broche | Couleur |
+|---|---|---|---|
+| R1 | led1 | D2 | rouge |
+| R2 | led2 | D3 | orange |
+| R3 | led3 | D4 | jaune |
+| R4 | led4 | D5 | vert |
+| R5 | led5 | D6 | bleu |
+| L1 | led6 | D7 | magenta |
+| L2 | led7 | D8 | violet |
+| L3 | led8 | D9 | cyan |
+| L4 | led9 | D10 | lime |
+| L5 | led10 | D11 | rose |
+
+Le montage complet est décrit par `led_arduino/diagram.json` (format du simulateur Wokwi) : il peut être simulé sans matériel sur wokwi.com en chargeant le sketch et le diagramme dans un même projet.
 
 ### Matériel
 
@@ -135,7 +156,7 @@ Format d'une trame : `R1=1,R2=0,...,L5=0` suivi d'un saut de ligne, à 9600 baud
 | Plaque d'essai + fils Dupont | à demander au lycée |
 | Webcam | déjà possédée |
 
-Le câblage exact des LED sera documenté avec le sketch Arduino.
+Le câblage complet des dix LED est donné dans la section 3 et dans `led_arduino/diagram.json` (schéma Wokwi).
 
 ---
 
@@ -171,14 +192,14 @@ On a appris que le projet de base en Python était possible : un programme qui t
 Écriture de `hand_robot.py` : capture OpenCV, repères MediaPipe, reconnaissance de cinq gestes, filtrage sur 5 images, liaison série avec heartbeat. Programmes Arduino de commande des moteurs et de test, tests automatiques de la logique de reconnaissance, cahier des charges dans `docs/`, retrait des fichiers C du dépôt.
 
 **Séance 10 — 15/11/2026 : deuxième changement de sujet, reconnaissance des dix doigts.**
-Le projet évolue : on abandonne la voiture robot au profit de la reconnaissance indépendante des dix doigts des deux mains, avec pilotage de dix LED. Nouveau programme `hand_tracker_angle.py` : la reconnaissance passe de comparaisons de distances (cinq gestes, une main) à une mesure d'angles par articulation en 3D (dix doigts, deux mains), avec un panneau de dix LED virtuelles, un vote majoritaire sur cinq images contre le clignotement, un état neutre pour le poing fermé et des trames série par doigt. Le dépôt est restructuré : les fichiers de la piste robot sont retirés (l'historique Git les conserve), la configuration VS Code est ajoutée. Prochaine étape : écrire le sketch Arduino des dix LED, puis tester avec le matériel.
+Le projet évolue : on abandonne la voiture robot au profit de la reconnaissance indépendante des dix doigts des deux mains, avec pilotage de dix LED. Nouveau programme `hand_tracker_angle.py` : la reconnaissance passe de comparaisons de distances (cinq gestes, une main) à une mesure d'angles par articulation en 3D (dix doigts, deux mains), avec un panneau de dix LED virtuelles, un vote majoritaire sur cinq images contre le clignotement, un état neutre pour le poing fermé et des trames série par doigt. Le dépôt est restructuré : les fichiers de la piste robot sont retirés (l'historique Git les conserve), la configuration VS Code est ajoutée. Le montage des dix LED est dessiné dans le simulateur Wokwi (`led_arduino/diagram.json`, LED sur les broches 2 à 11, résistances de 220 Ω) et le sketch `led_arduino/led_arduino.ino` reçoit les trames, allume les LED doigt par doigt et éteint tout si la liaison est perdue ; un balayage des LED au démarrage permet de vérifier le câblage sans ordinateur. Prochaine étape : valider le montage en simulation, puis tester avec le matériel réel.
 
 ### Jalons et avancement
 
 1. Programme Python de reconnaissance des dix doigts (angles, filtrage, LED virtuelles) — **fait (séance 10)**.
 2. Liaison série par doigt vers l'Arduino — **faite (séance 10)**.
-3. Sketch Arduino des dix LED (`led_arduino/`) — à faire.
-4. Campagne de tests matériels avec les dix LED (section 6) — à faire.
+3. Sketch Arduino des dix LED et schéma du montage (`led_arduino/`) — **faits (séance 10)**.
+4. Validation du montage en simulation Wokwi, puis campagne de tests matériels avec les dix LED (section 6) — à faire.
 5. Réglages sur le matériel réel (seuils d'angles, port COM) et bilan final — à faire.
 
 ### Problèmes rencontrés et solutions
@@ -191,11 +212,11 @@ Le projet évolue : on abandonne la voiture robot au profit de la reconnaissance
 | Côté gauche/droite inversé par la webcam | Image retournée en miroir avant le traitement MediaPipe | Séance 10 |
 | L'Arduino redémarre à l'ouverture du port série | Attente de 2 secondes après l'ouverture | Séance 10 |
 | Une main qui disparaît laisse un état figé | Historique de filtrage effacé dès qu'une main n'est plus détectée | Séance 10 |
+| Les LED resteraient allumées si Python plantait ou si le câble se débranchait | Côté Arduino : extinction automatique de toutes les LED après 1 s sans trame | Séance 10 |
 
 ### Reste à faire avant le rendu
 
-- Écrire et ajouter le sketch Arduino des dix LED (`led_arduino/`), avec le câblage des LED.
-- Suivre la procédure de test complète (section 6) et consigner les résultats réels dans le tableau de jeux d'essais.
+- Valider le montage en simulation Wokwi, puis suivre la procédure de test complète (section 6) et consigner les résultats réels dans le tableau de jeux d'essais.
 - Régler sur le vrai matériel : port COM, éventuellement les seuils d'angles.
 - Remplir la répartition effective du travail et les bilans individuels.
 - Compléter la date du dernier commit.
@@ -230,11 +251,15 @@ Lancement :
 py -3.12 hand_tracker_angle.py
 ```
 
+Sans matériel, le montage se teste dans le simulateur Wokwi (wokwi.com) : créer un projet Arduino Uno, y déposer `led_arduino/led_arduino.ino` et `led_arduino/diagram.json`, puis envoyer des trames comme `R1=1,R2=0,R3=0,R4=0,R5=0,L1=0,L2=0,L3=0,L4=0,L5=0` depuis le Moniteur série (réglé sur 9600 bauds, fin de ligne « nouvelle ligne »).
+
 Quitter avec `q` ou Échap : le programme envoie une trame de remise à zéro puis ferme la caméra et le port série. Le dossier `.vscode/` contient la configuration VS Code (environnement Python système) utilisée pendant le développement.
 
 ---
 
 ## 6. Tests
+
+Le montage peut d'abord être validé en simulation Wokwi avec les mêmes étapes, en tapant les trames à la main dans le Moniteur série (voir section 5).
 
 ### Procédure matérielle progressive
 
@@ -244,8 +269,9 @@ Quitter avec `q` ou Échap : le programme envoie une trame de remise à zéro pu
 4. Deux mains visibles : les dix LED virtuelles sont indépendantes.
 5. Poing fermé : message « poing fermé, aucun signal », toutes les LED restent éteintes.
 6. Main retirée : l'historique de filtrage est effacé, les LED de cette main s'éteignent.
-7. Mode Arduino, LED branchées : chaque doigt levé allume la LED réelle correspondante.
-8. Fermer le programme avec `q` : toutes les LED s'éteignent (trame de remise à zéro).
+7. Au démarrage de l'Arduino, chaque LED s'allume 100 ms l'une après l'autre : le câblage est vérifié sans ordinateur.
+8. Mode Arduino, LED branchées : chaque doigt levé allume la LED réelle correspondante.
+9. Fermer le programme avec `q` : toutes les LED s'éteignent (trame de remise à zéro).
 
 ### Jeux d'essais
 
@@ -257,7 +283,7 @@ Quitter avec `q` ou Échap : le programme envoie une trame de remise à zéro pu
 | 4 | Normal | les dix doigts levés (deux mains ouvertes) | les dix LED allumées | ⚠️ |
 | 5 | Cas limite | poing fermé d'une main, l'autre ouverte | état neutre pour le poing, LED de l'autre main actives | ⚠️ |
 | 6 | Cas limite | main penchée d'environ 45° | les mêmes doigts sont reconnus | ⚠️ |
-| 7 | Cas limite | main retirée de l'image | LED de cette main éteintes en moins d'une seconde | ⚠️ |
+| 7 | Cas limite | main retirée de l'image | LED de cette main éteintes en environ une seconde | ⚠️ |
 | 8 | Cas limite | main en lumière faible ou vue de profil | détection dégradée documentée | ⚠️ |
 | 9 | Sécurité | fermeture du programme avec q | toutes les LED réelles s'éteignent | ⚠️ |
 | 10 | Sécurité | port COM débranché puis rebranché | programme ferme proprement ou reprend sans faux états | ⚠️ |
@@ -274,6 +300,7 @@ Quitter avec `q` ou Échap : le programme envoie une trame de remise à zéro pu
 | Un doigt clignote à l'écran | filtrage trop court | `SMOOTHING_FRAMES = 5` | augmenter à 7-10 |
 | Le pouce est mal reconnu | seuils inadaptés à la main | afficher les angles | ajuster les seuils en haut du fichier |
 | Le côté gauche/droite est inversé | image non retournée ou webcam différente | `MIRROR_IMAGE = True` | ajuster selon la caméra |
+| Les LED réelles restent allumées | trame non reçue ou liaison perdue | une LED ne s'allume pas au balayage du démarrage | vérifier broche et résistance de la LED fautive, port COM ; le sketch éteint tout après 1 s sans trame |
 
 ---
 
@@ -284,7 +311,7 @@ Quitter avec `q` ou Échap : le programme envoie une trame de remise à zéro pu
 - La reconnaissance par angles suppose que les repères 3D de MediaPipe sont fiables : vue de profil ou en lumière faible, la détection des repères elle-même se dégrade.
 - Le pouce reste le doigt le plus délicat : le double critère (angle et écart) réduit les erreurs, mais un réglage sur de vraies mains sera peut-être nécessaire.
 - Les seuils d'angles (155°, 145°, 1,15) ont été choisis pour des mains typiques ; des mains très différentes peuvent demander un ajustement.
-- Le sketch Arduino des dix LED n'est pas encore dans le dépôt : la partie matérielle reste à faire.
+- Le montage n'a pas encore été testé avec de vraies LED : il est défini par `led_arduino/diagram.json` et le sketch correspondant, à valider d'abord en simulation puis sur le matériel.
 
 ### Améliorations possibles
 
@@ -302,6 +329,7 @@ Quitter avec `q` ou Échap : le programme envoie une trame de remise à zéro pu
 | Analyse du problème et conception | ⚠️ | ⚠️ | ⚠️ |
 | Programme Python (reconnaissance des dix doigts, LED virtuelles, liaison série) | ⚠️ | ⚠️ | ⚠️ |
 | Sketch Arduino des dix LED | ⚠️ | ⚠️ | ⚠️ |
+| Schéma du montage (Wokwi) | ⚠️ | ⚠️ | ⚠️ |
 | Configuration VS Code | ⚠️ | ⚠️ | ⚠️ |
 | Tests matériels | ⚠️ | ⚠️ | ⚠️ |
 | Rédaction et relecture du README | ⚠️ | ⚠️ | ⚠️ |
