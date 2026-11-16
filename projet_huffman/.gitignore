@@ -1,0 +1,6 @@
+# Binaire du compresseur
+huffman
+huffman-debug
+
+# Fichiers objets
+*.o
